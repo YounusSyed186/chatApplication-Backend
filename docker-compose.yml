@@ -82,7 +82,6 @@ services:
     environment:
       - PORT=5001
       - POSTGRES_URL=postgresql://postgres:younus098@postgres:5432/student_network
-      - GEMINI_API_KEY=AIzaSyCk3hTgCFSvHHEAar2szGCtsX9jIzY91eY
     networks:
       - backend-network
 
