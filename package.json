@@ -23,6 +23,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^7.6.0"
+    "concurrently": "^7.6.0",
+    "node-fetch": "^3.3.2",
+    "uuid": "^13.0.0"
   }
 }

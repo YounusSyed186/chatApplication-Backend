@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255),
+  username VARCHAR(255),
   college VARCHAR(255),
   year INTEGER,
   branch VARCHAR(255),
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS confessions (
 -- Events table
 CREATE TABLE IF NOT EXISTS events (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   college VARCHAR(255) NOT NULL,
   title VARCHAR(255) NOT NULL,
   description TEXT,
@@ -57,3 +59,12 @@ CREATE TABLE IF NOT EXISTS events (
   demand_count INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Sample event data
+INSERT INTO events (college, title, description, likes, demand_count) VALUES
+  ('MIT', 'Tech Hackathon 2026', 'Join us for the biggest hackathon of the year! Build amazing projects and win prizes.', 45, 120),
+  ('Stanford', 'AI Workshop Series', 'Learn cutting-edge AI and ML techniques from industry experts. Free registration!', 32, 85),
+  ('Harvard', 'Startup Pitch Night', 'Showcase your startup ideas to investors and fellow entrepreneurs.', 28, 60),
+  ('MIT', 'Campus BBQ', 'Come grab some food and meet new people on campus. Friday evening at the quad!', 15, 40),
+  ('Stanford', 'Career Networking Fair', 'Connect with top tech companies and learn about career opportunities.', 38, 95)
+ON CONFLICT DO NOTHING;
