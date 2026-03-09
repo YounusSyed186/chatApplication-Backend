@@ -1,0 +1,20 @@
+                                                           List of databases
+        Name         |   Owner    | Encoding | Locale Provider |   Collate   |    Ctype    | Locale | ICU Rules |   Access privileges   
+---------------------+------------+----------+-----------------+-------------+-------------+--------+-----------+-----------------------
+ auth_service        | postgres   | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ chatapplication     | postgres   | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ matching_service    | postgres   | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ postgres            | postgres   | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ student_network     | postgres   | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ template0           | postgres   | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/postgres          +
+                     |            |          |                 |             |             |        |           | postgres=CTc/postgres
+ template1           | postgres   | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/postgres          +
+                     |            |          |                 |             |             |        |           | postgres=CTc/postgres
+ user_service        | postgres   | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ zulip               | zulip      | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ zulip_base          | zulip      | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ zulip_test          | zulip_test | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ zulip_test_base     | zulip_test | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ zulip_test_template | zulip_test | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+(13 rows)
+

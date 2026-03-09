@@ -1,0 +1,28 @@
+{
+  "name": "chat-application-backend",
+  "version": "1.0.0",
+  "description": "Microservices Backend for Chat Application",
+  "main": "index.js",
+  "scripts": {
+    "start:gateway": "cd api-gateway && npm install && npm start",
+    "start:auth": "cd auth-service && npm install && npm start",
+    "start:user": "cd user-service && npm install && npm start",
+    "start:chat": "cd chat-service && npm install && npm start",
+    "start:confession": "cd confession-service && npm install && npm start",
+    "start:event": "cd event-service && npm install && npm start",
+    "start:matching": "cd matching-service && npm install && npm start",
+    "start:moderation": "cd moderation-service && npm install && npm start",
+    "dev": "npm install concurrently && concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:chat\" \"npm run start:confession\" \"npm run start:event\" \"npm run start:matching\" \"npm run start:moderation\"",
+    "install:all": "npm install && for dir in */; do (cd \"$dir\" && npm install); done"
+  },
+  "keywords": [
+    "microservices",
+    "api-gateway",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

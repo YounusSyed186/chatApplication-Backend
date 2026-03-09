@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (for multiple services)
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: younus098
+      POSTGRES_DB: ChatApplication
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB (for Chat Service)
+  mongodb:
+    image: mongo:6
+    environment:
+      MONGO_INITDB_USERNAME: root
+      MONGO_INITDB_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - user-service
+      - chat-service
+      - confession-service
+      - event-service
+      - matching-service
+      - moderation-service
+    environment:
+      - PORT=3000
+    networks:
+      - backend-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    environment:
+      - PORT=5000
+      - POSTGRES_URL=postgresql://postgres:younus098@postgres:5432/auth_service
+      - JWT_SECRET=your_jwt_secret_key
+    networks:
+      - backend-network
+
+  # User Service
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    depends_on:
+      - postgres
+    environment:
+      - PORT=5001
+      - POSTGRES_URL=postgresql://postgres:younus098@postgres:5432/student_network
+      - GEMINI_API_KEY=AIzaSyCk3hTgCFSvHHEAar2szGCtsX9jIzY91eY
+    networks:
+      - backend-network
+
+  # Chat Service
+  chat-service:
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=5002
+      - MONGO_URI=mongodb://root:password@mongodb:27017/chat_service
+    networks:
+      - backend-network
+
+  # Confession Service
+  confession-service:
+    build:
+      context: ./confession-service
+      dockerfile: Dockerfile
+    ports:
+      - "5003:5003"
+    depends_on:
+      - postgres
+    environment:
+      - PORT=5003
+      - POSTGRES_URL=postgresql://postgres:younus098@postgres:5432/student_network
+      - MODERATION_SERVICE_URL=http://moderation-service:5006/moderate
+    networks:
+      - backend-network
+
+  # Event Service
+  event-service:
+    build:
+      context: ./event-service
+      dockerfile: Dockerfile
+    ports:
+      - "5004:5004"
+    depends_on:
+      - postgres
+    environment:
+      - PORT=5004
+      - POSTGRES_URL=postgresql://postgres:younus098@postgres:5432/student_network
+      - MODERATION_SERVICE_URL=http://moderation-service:5006/moderate
+    networks:
+      - backend-network
+
+  # Matching Service
+  matching-service:
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5005"
+    depends_on:
+      - postgres
+    environment:
+      - PORT=5005
+      - POSTGRES_URL=postgresql://postgres:younus098@postgres:5432/student_network
+      - GEMINI_API_KEY=AIzaSyCk3hTgCFSvHHEAar2szGCtsX9jIzY91eY
+    networks:
+      - backend-network
+
+  # Moderation Service
+  moderation-service:
+    build:
+      context: ./moderation-service
+      dockerfile: Dockerfile
+    ports:
+      - "5006:5006"
+    environment:
+      - PORT=5006
+      - TOXICITY_MODEL_API_KEY=your_api_key_here
+    networks:
+      - backend-network
+
+volumes:
+  postgres_data:
+  mongodb_data:
+
+networks:
+  backend-network:
+    driver: bridge
