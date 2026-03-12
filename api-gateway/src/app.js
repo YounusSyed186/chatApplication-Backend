@@ -1,116 +1,65 @@
+require("dotenv").config();
 const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const http = require('http');
 
 const app = express();
-
-// Middleware
 app.use(cors());
-// Removed body parsing from gateway to allow proxy to forward raw body
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // for REST payloads
 
-// Logging middleware
+// Logging
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - ${req.ip}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'API Gateway is running' });
+app.get('/health', (req, res) => res.json({ status: 'API Gateway running' }));
+
+// ---------------- CHAT WEBSOCKET ---------------- //
+const chatProxy = createProxyMiddleware({
+  target: "http://localhost:5002",
+  changeOrigin: true,
+  ws: true,
+  logLevel: "debug",
+  pathRewrite: { "^/chat": "" }, // /chat/socket.io -> /socket.io
+  onError: (err, req, res) => {
+    console.error("Chat service proxy error:", err.message);
+    if (!res.headersSent) res.status(503).json({ error: 'Chat service unavailable' });
+  }
 });
 
-// ---------------- SERVICES ---------------- //
+app.use("/chat", chatProxy);
 
-// Auth Service - 5000
-app.use('/auth', createProxyMiddleware({
-  target: 'http://localhost:5000',
-  changeOrigin: true,
+// ------------- OTHER SERVICES ---------------- //
+const services = [
+  { path: "/auth", port: 5000 },
+  { path: "/users", port: 5001 },
+  { path: "/confessions", port: 5003 },
+  { path: "/events", port: 5004 },
+  { path: "/matching", port: 5005 },
+  { path: "/moderation", port: 5006 },
+];
 
-  onProxyReq: (proxyReq, req, res) => {
-    console.log(`Proxying ${req.method} ${req.originalUrl} to Auth Service`);
-
-    // Forward Authorization header
-    if (req.headers.authorization) {
-      proxyReq.setHeader('Authorization', req.headers.authorization);
+services.forEach(s => {
+  app.use(s.path, createProxyMiddleware({
+    target: `http://localhost:${s.port}`,
+    changeOrigin: true,
+    logLevel: "debug",
+    onError: (err, req, res) => {
+      console.error(`${s.path} proxy error:`, err.message);
+      if (!res.headersSent) res.status(503).json({ error: `${s.path} service unavailable` });
     }
-  },
-
-  onProxyRes: (proxyRes, req, res) => {
-    console.log(`Response from Auth Service: ${proxyRes.statusCode}`);
-  },
-
-  onError: (err, req, res) => {
-    console.error('Auth service error:', err.message);
-    res.status(503).json({ error: 'Auth service unavailable' });
-  }
-}));
-
-// User Service - 5001
-app.use('/users', createProxyMiddleware({
-  target: 'http://localhost:5001',
-  changeOrigin: true,
-  onProxyReq: (proxyReq, req, res) => {
-    console.log(`Proxying ${req.method} ${req.originalUrl} to User Service`);
-  },
-  onProxyRes: (proxyRes, req, res) => {
-    console.log(`Response from User Service: ${proxyRes.statusCode}`);
-  },
-  onError: (err, req, res) => {
-    console.error('User service error:', err.message);
-    res.status(503).json({ error: 'User service unavailable' });
-  }
-}));
-
-// Chat Service - 5002
-app.use('/chat', createProxyMiddleware({
-  target: 'http://localhost:5002',
-  changeOrigin: true,
-  onError: (err, req, res) => {
-    res.status(503).json({ error: 'Chat service unavailable' });
-  }
-}));
-
-// Confession Service - 5003
-app.use('/confessions', createProxyMiddleware({
-  target: 'http://localhost:5003',
-  changeOrigin: true,
-  onError: (err, req, res) => {
-    res.status(503).json({ error: 'Confession service unavailable' });
-  }
-}));
-
-// Event Service - 5004
-app.use('/events', createProxyMiddleware({
-  target: 'http://localhost:5004',
-  changeOrigin: true,
-  onError: (err, req, res) => {
-    res.status(503).json({ error: 'Event service unavailable' });
-  }
-}));
-
-// Matching Service - 5005
-app.use('/matching', createProxyMiddleware({
-  target: 'http://localhost:5005',
-  changeOrigin: true,
-  onError: (err, req, res) => {
-    res.status(503).json({ error: 'Matching service unavailable' });
-  }
-}));
-
-// Moderation Service - 5006
-app.use('/moderation', createProxyMiddleware({
-  target: 'http://localhost:5006',
-  changeOrigin: true,
-  onError: (err, req, res) => {
-    res.status(503).json({ error: 'Moderation service unavailable' });
-  }
-}));
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  }));
 });
 
-module.exports = app;
+// 404
+app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
+
+// Create HTTP server for WebSocket
+const server = http.createServer(app);
+server.on("upgrade", chatProxy.upgrade);
+
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => console.log(`API Gateway running on port ${PORT}`));

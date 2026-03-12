@@ -21,4 +21,15 @@ async function createProfile(req, res) {
   }
 }
 
-module.exports = { createProfile };
+async function getUsers(req, res) {
+  try {
+    const users = await service.getUsers();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({
+      error: err.message
+    });
+  }
+}
+
+module.exports = { createProfile, getUsers };

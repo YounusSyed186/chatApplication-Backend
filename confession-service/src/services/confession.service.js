@@ -8,6 +8,7 @@ async function createConfession(college, message) {
     const mod = await axios.post(process.env.MODERATION_SERVICE_URL, {
       message,
     });
+    console.log('Moderation response:', mod.data);
 
     if (!mod.data.allowed) {
       throw new Error("Message flagged as toxic");
@@ -22,15 +23,20 @@ async function createConfession(college, message) {
   }
 }
 
-async function getConfessions(college) {
+async function getConfessions(filter) {
   try {
-    console.log('Fetching confessions for college', college);
-    const data = await repo.getByCollege(college);
-    return data;
+    return await repo.getConfessions(filter);
   } catch (err) {
-    console.error('getConfessions error:', err.message);
+    console.error("getConfessions error:", err.message);
     throw err;
   }
 }
+async function getLikes(confessionId) {
+  return await repo.getLikes(confessionId);
+}
 
-module.exports = { createConfession, getConfessions };
+async function likeConfession(confessionId) {
+  return await repo.likeConfession(confessionId);
+}
+
+module.exports = { createConfession, getConfessions, getLikes, likeConfession };

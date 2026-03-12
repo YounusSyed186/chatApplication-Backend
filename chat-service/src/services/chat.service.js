@@ -29,9 +29,18 @@ async function createRoom(data) {
     throw err;
   }
 }
+async function getRooms(userId) {
+  try {
+    return await Room.getRoomsForUser(userId);
+  } catch (err) {
+    console.error("getRooms error:", err.message);
+    throw err;
+  }
+}
 
 module.exports = {
   saveMessage,
   getMessages,
-  createRoom
+  createRoom,
+  getRooms
 };

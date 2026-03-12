@@ -11,17 +11,18 @@ async function create(college, message) {
   return result.rows[0];
 }
 
-async function getByCollege(college) {
+async function getConfessions(filter) {
   try {
-    let query = `
-      SELECT * FROM confessions
-    `;
+    let query = `SELECT * FROM confessions`;
+    let values = [];
 
-    const values = [];
-
-    if (college) {
-      query += ` WHERE college = $1`;
-      values.push(college);
+    if (filter && filter !== "all") {
+      if (filter === "none") {
+        query += ` WHERE college IS NULL`;
+      } else {
+        query += ` WHERE college = $1`;
+        values.push(filter);
+      }
     }
 
     query += ` ORDER BY created_at DESC LIMIT 50`;
@@ -30,9 +31,38 @@ async function getByCollege(college) {
     return result.rows;
 
   } catch (err) {
-    console.error("Confession repository getByCollege error:", err.message);
+    console.error("Confession repository error:", err.message);
     throw err;
   }
 }
 
-module.exports = { create, getByCollege };
+async function getLikes(confessionId) {
+  const result = await db.query(
+    "SELECT likes FROM confessions WHERE id = $1",
+    [confessionId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Confession not found");
+  }
+
+  return result.rows[0];
+}
+
+async function likeConfession(confessionId) {
+  const result = await db.query(
+    `UPDATE confessions 
+     SET likes = likes + 1 
+     WHERE id = $1 
+     RETURNING likes`,
+    [confessionId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Confession not found");
+  }
+
+  return result.rows[0];
+}
+
+module.exports = { create, getConfessions, getLikes, likeConfession };

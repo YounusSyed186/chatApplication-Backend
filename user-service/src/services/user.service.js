@@ -27,4 +27,14 @@ Bio: ${data.bio}
   }
 }
 
-module.exports = { createProfile };
+async function getUsers() {
+  try {
+    const users = await repo.getAllUsers();
+    return users;
+  } catch (err) {
+    console.error("getUsers error:", err.message);
+    throw err;
+  }
+}
+
+module.exports = { createProfile, getUsers };

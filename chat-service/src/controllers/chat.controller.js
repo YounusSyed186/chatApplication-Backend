@@ -26,7 +26,23 @@ async function createRoom(req, res) {
   }
 }
 
+async function getRooms(req, res) {
+  try {
+    const userId = req.params.userId;
+
+    console.log("Fetching rooms for user:", userId);
+
+    const rooms = await chatService.getRooms(userId);
+
+    res.json(rooms);
+  } catch (err) {
+    console.error("Get rooms error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   createRoom,
-  getMessages
+  getMessages,
+  getRooms
 };

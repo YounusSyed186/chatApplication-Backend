@@ -60,4 +60,21 @@ WHERE id = $11
   }
 }
 
-module.exports = { updateProfile };
+async function getAllUsers() {
+  try {
+    const query = `
+      SELECT * 
+      FROM users
+      ORDER BY username ASC
+    `;
+
+    const { rows } = await db.query(query);
+
+    return rows;
+
+  } catch (err) {
+    console.error("getAllUsers error:", err.message);
+    throw err;
+  }
+}
+module.exports = { updateProfile, getAllUsers };
