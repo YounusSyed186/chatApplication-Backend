@@ -1,10 +1,13 @@
 const db = require("../config/db");
 
-async function createMessage(roomId, senderId, content) {
+async function createMessage(id, roomId, senderId, content) {
   const result = await db.query(
-    "INSERT INTO messages (room_id, sender_id, content) VALUES ($1, $2, $3) RETURNING *",
-    [roomId, senderId, content]
+    `INSERT INTO messages (id, room_id, sender_id, content)
+     VALUES ($1, $2, $3, $4)
+     RETURNING *`,
+    [id, roomId, senderId, content]
   );
+
   return result.rows[0];
 }
 
@@ -13,6 +16,7 @@ async function getMessagesByRoom(roomId) {
     "SELECT * FROM messages WHERE room_id = $1 ORDER BY created_at ASC",
     [roomId]
   );
+
   return result.rows;
 }
 
