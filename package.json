@@ -12,7 +12,8 @@
     "start:event": "cd event-service && npm install && npm start",
     "start:matching": "cd matching-service && npm install && npm start",
     "start:moderation": "cd moderation-service && npm install && npm start",
-    "dev": "npm install concurrently && concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:chat\" \"npm run start:confession\" \"npm run start:event\" \"npm run start:matching\" \"npm run start:moderation\"",
+    "start:chatbot": "cd chatbot-service && npm install && npm start",
+    "dev": "npm install concurrently && concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:chat\" \"npm run start:confession\" \"npm run start:event\" \"npm run start:matching\" \"npm run start:moderation\" \"npm run start:chatbot\"",
     "install:all": "npm install && for dir in */; do (cd \"$dir\" && npm install); done"
   },
   "keywords": [
@@ -23,7 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^7.6.0",
+    "concurrently": "^9.2.1",
     "node-fetch": "^3.3.2",
     "uuid": "^13.0.0"
   }

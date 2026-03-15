@@ -22,20 +22,24 @@ function setupChatSocket(io) {
     });
 
     socket.on("sendMessage", async (data) => {
-      if (!data.roomId || !data.sender_id || !data.content) {
-        console.log("Invalid message payload", data);
-        return;
+      try {
+        if (!data.roomId || !data.sender_id || !data.content) {
+          console.log("Invalid message payload", data);
+          return;
+        }
+
+        const message = await chatService.saveMessage(data);
+
+        io.to(data.roomId).emit("receiveMessage", {
+          id: message.id,
+          sender_id: message.sender_id,
+          content: message.content,
+          timestamp: message.created_at
+        });
+
+      } catch (err) {
+        console.error("sendMessage error:", err);
       }
-
-      const message = await chatService.saveMessage(data);
-
-      io.to(data.roomId).emit("receiveMessage", {
-        id: message.id,
-        sender_id: message.sender_id,
-        content: message.content,
-        timestamp: message.created_at
-      });
-
     });
 
     socket.on("disconnect", async () => {

@@ -22,7 +22,28 @@ app.get('/health', (req, res) => {
 });
 
 // ---------------- SERVICES ---------------- //
+// Chatbot Service - 5007
+app.use('/chatbot', createProxyMiddleware({
+  target: 'http://localhost:5007',
+  changeOrigin: true,
 
+  pathRewrite: {
+    '^/chatbot': ''   // removes /chatbot prefix
+  },
+
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`Proxying ${req.method} ${req.originalUrl} to Chatbot Service`);
+  },
+
+  onProxyRes: (proxyRes, req, res) => {
+    console.log(`Response from Chatbot Service: ${proxyRes.statusCode}`);
+  },
+
+  onError: (err, req, res) => {
+    console.error('Chatbot service error:', err.message);
+    res.status(503).json({ error: 'Chatbot service unavailable' });
+  }
+}));
 // Auth Service - 5000
 app.use('/auth', createProxyMiddleware({
   target: 'http://localhost:5000',

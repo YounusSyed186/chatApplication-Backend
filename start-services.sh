@@ -16,19 +16,18 @@ start_service() {
     
     echo -e "${GREEN}Starting $service_name on port $port...${NC}"
     cd "$service_path" || exit 1
-    npm install > /dev/null 2>&1
-    npm start &
+    pnpm install > /dev/null 2>&1
+    pnpm start &
     sleep 2
 }
 
 # Get the base directory
 BACKEND_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
-# Start API Gateway
 cd "$BACKEND_DIR/api-gateway" || exit 1
-npm install > /dev/null 2>&1
+pnpm install > /dev/null 2>&1
 echo -e "${GREEN}Starting API Gateway on port 3000...${NC}"
-npm start &
+pnpm start &
 sleep 2
 
 # Start Auth Service
