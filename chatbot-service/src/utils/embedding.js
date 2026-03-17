@@ -1,14 +1,10 @@
-dotenv = require('dotenv');
+require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function generateEmbedding(text) {
-  console.log("Gemini Key:", process.env.GEMINI_API_KEY);
-
-  const model = genAI.getGenerativeModel({
-    model: "gemini-embedding-001"
-  });
+  const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
 
   const result = await model.embedContent({
     content: { parts: [{ text }] },

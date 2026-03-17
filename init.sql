@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS events (
   description TEXT,
   likes INTEGER DEFAULT 0,
   demand_count INTEGER DEFAULT 0,
+  embedding vector(768),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
